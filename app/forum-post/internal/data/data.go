@@ -65,7 +65,7 @@ func NewRedis(c *conf.Data) redis.Cmdable {
 }
 
 func NewMongoDB(c *conf.Data) *mongo.Client {
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(c.Mongo.Addr))
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(c.Database.Source))
 	if err != nil {
 		panic(err)
 	}
