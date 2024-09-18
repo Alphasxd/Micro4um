@@ -2,14 +2,14 @@ version: "3"
 services:
   kafka:
     image: "bitnami/kafka:3.6.0"
-    container_name: linkme-kafka
+    container_name: forum-kafka
     restart: always
     ports:
       - "9092:9092"
       - "9094:9094"
     environment:
       - KAFKA_CFG_NODE_ID=0
-      - KAFKA_CREATE_TOPICS=linkme_binlog:3:1
+      - KAFKA_CREATE_TOPICS=forum_binlog:3:1
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
       - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://:9093,EXTERNAL://0.0.0.0:9094
@@ -23,18 +23,18 @@ services:
       - /data/kafka:/bitnami/kafka/data
   db:
     image: mysql:8.0
-    container_name: linkme-mysql
+    container_name: forum-mysql
     ports:
       - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: linkme
+      MYSQL_DATABASE: forum
     volumes:
       - /data/mysql:/var/lib/mysql
       - ./init:/docker-entrypoint-initdb.d/
   redis:
     image: redis:latest
-    container_name: linkme-redis
+    container_name: forum-redis
     restart: always
     ports:
       - "6379:6379"
@@ -48,12 +48,12 @@ services:
       - "6379"
   mongo:
     image: mongo:latest
-    container_name: linkme-mongo
+    container_name: forum-mongo
     restart: always
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_DATABASE=linkme # 设置默认数据库名
+      - MONGO_INITDB_DATABASE=forum # 设置默认数据库名
     volumes:
       - /data/mongo:/data/db  # 持久化 MongoDB 数据到宿主机的 /data/mongo 目录
   elasticsearch:
@@ -70,11 +70,11 @@ services:
       - "9300:9300"
   canal:
     image: canal/canal-server
-    container_name: linkme-canal
+    container_name: forum-canal
     environment:
       - CANAL_IP=canal-server
       - CANAL_PORT=11111
-      - CANAL_DESTINATIONS=linkme
+      - CANAL_DESTINATIONS=forum
     depends_on:
       - db
       - kafka
@@ -87,7 +87,7 @@ services:
       - /data/canal/canal.properties:/home/admin/canal-server/conf/canal.properties
   prometheus:
     image: bitnami/prometheus:latest
-    container_name: linkme-prometheus
+    container_name: forum-prometheus
     volumes:
       - ./prometheus.yml:/opt/bitnami/prometheus/conf/prometheus.yml
     ports:

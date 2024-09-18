@@ -1,0 +1,426 @@
+package service
+
+import (
+	"context"
+	"errors"
+	"strings"
+	"time"
+
+	pb "github.com/Alphasxd/Micro4um/api/post/v1"
+	userpb "github.com/Alphasxd/Micro4um/api/user/v1"
+	"github.com/Alphasxd/Micro4um/app/forum-post/internal/biz"
+	"github.com/go-kratos/kratos/v2/transport"
+	"google.golang.org/protobuf/types/known/timestamppb"
+)
+
+type PostService struct {
+	pb.UnimplementedPostServer
+	userClient userpb.UserClient
+	biz        *biz.PostBiz
+}
+
+func NewPostService(biz *biz.PostBiz, userClient userpb.UserClient) *PostService {
+	return &PostService{
+		biz:        biz,
+		userClient: userClient,
+	}
+}
+
+func (s *PostService) CreatePost(ctx context.Context, req *pb.CreatePostRequest) (*pb.CreatePostReply, error) {
+	userId, err := s.getUserId(ctx)
+	if err != nil {
+		return &pb.CreatePostReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	post, err := s.biz.CreatePost(ctx, biz.Post{
+		UserID:  userId,
+		Content: req.Content,
+		PlateID: req.PlateId,
+		Title:   req.Title,
+	})
+
+	if err != nil {
+		return &pb.CreatePostReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	return &pb.CreatePostReply{
+		Code: 0,
+		Msg:  "create post success",
+		Data: post,
+	}, nil
+}
+
+func (s *PostService) UpdatePost(ctx context.Context, req *pb.UpdatePostRequest) (*pb.UpdatePostReply, error) {
+	userId, err := s.getUserId(ctx)
+	if err != nil {
+		return &pb.UpdatePostReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	err = s.biz.UpdatePost(ctx, biz.Post{
+		ID:      req.PostId,
+		UserID:  userId,
+		Content: req.Content,
+		PlateID: req.PlateId,
+		Title:   req.Title,
+	})
+	if err != nil {
+		return &pb.UpdatePostReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	return &pb.UpdatePostReply{
+		Code: 0,
+		Msg:  "update post success",
+	}, nil
+}
+
+func (s *PostService) UpdatePostStatus(ctx context.Context, req *pb.UpdatePostStatusRequest) (*pb.UpdatePostStatusReply, error) {
+	userId, err := s.getUserId(ctx)
+	if err != nil {
+		return &pb.UpdatePostStatusReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	err = s.biz.UpdatePostStatus(ctx, biz.Post{
+		ID:     req.PostId,
+		UserID: userId,
+		Status: uint8(req.Status),
+	})
+	if err != nil {
+		return &pb.UpdatePostStatusReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	return &pb.UpdatePostStatusReply{
+		Code: 0,
+		Msg:  "update post status success",
+	}, nil
+}
+
+func (s *PostService) DeletePost(ctx context.Context, req *pb.DeletePostRequest) (*pb.DeletePostReply, error) {
+	userId, err := s.getUserId(ctx)
+	if err != nil {
+		return &pb.DeletePostReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	err = s.biz.DeletePost(ctx, biz.Post{
+		ID:     req.PostId,
+		UserID: userId,
+	})
+	if err != nil {
+		return &pb.DeletePostReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	return &pb.DeletePostReply{
+		Code: 0,
+		Msg:  "delete post success",
+	}, nil
+}
+
+func (s *PostService) PublishPost(ctx context.Context, req *pb.PublishPostRequest) (*pb.PublishPostReply, error) {
+	userId, err := s.getUserId(ctx)
+	if err != nil {
+		return &pb.PublishPostReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	err = s.biz.PublishPost(ctx, biz.Post{
+		ID:     req.PostId,
+		UserID: userId,
+	})
+	if err != nil {
+		return &pb.PublishPostReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	return &pb.PublishPostReply{
+		Code: 0,
+		Msg:  "publish post success",
+	}, nil
+}
+
+func (s *PostService) ListPost(ctx context.Context, req *pb.ListPostRequest) (*pb.ListPostReply, error) {
+	userId, err := s.getUserId(ctx)
+	if err != nil {
+		return &pb.ListPostReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	posts, err := s.biz.ListPost(ctx, biz.Pagination{
+		Page: int(req.Page),
+		Size: &req.Size,
+		Uid:  userId,
+	})
+	if err != nil {
+		return &pb.ListPostReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	// 创建切片来保存结果
+	listPosts := make([]*pb.ListPost, len(posts))
+
+	for i, post := range posts {
+		listPosts[i] = &pb.ListPost{
+			Id:        post.ID,
+			Title:     post.Title,
+			Content:   post.Content,
+			UserId:    post.UserID,
+			PlateId:   post.PlateID,
+			CreatedAt: timestamppb.New(post.CreatedAt),
+			UpdatedAt: timestamppb.New(post.UpdatedAt),
+		}
+	}
+
+	return &pb.ListPostReply{
+		Code: 0,
+		Msg:  "list post success",
+		Data: listPosts,
+	}, nil
+}
+
+func (s *PostService) ListPubPost(ctx context.Context, req *pb.ListPubPostRequest) (*pb.ListPubPostReply, error) {
+	userId, err := s.getUserId(ctx)
+	if err != nil {
+		return &pb.ListPubPostReply{
+			Code: 1,
+			Msg:  "Failed to retrieve user ID: " + err.Error(),
+		}, err
+	}
+
+	// 调用业务逻辑层获取帖子列表
+	posts, err := s.biz.ListPubPost(ctx, biz.Pagination{
+		Page: int(req.Page),
+		Size: &req.Size,
+		Uid:  userId,
+	})
+	if err != nil {
+		return &pb.ListPubPostReply{
+			Code: 1,
+			Msg:  "Failed to list published posts: " + err.Error(),
+		}, err
+	}
+
+	// 预先分配切片，避免在循环中动态分配内存
+	listPubPosts := make([]*pb.ListPost, len(posts))
+
+	// 使用 for range 遍历 posts 切片
+	for i, post := range posts {
+		listPubPosts[i] = &pb.ListPost{
+			Id:        post.ID,
+			Title:     post.Title,
+			Content:   post.Content,
+			UserId:    post.UserID,
+			PlateId:   post.PlateID,
+			CreatedAt: timestamppb.New(post.CreatedAt),
+			UpdatedAt: timestamppb.New(post.UpdatedAt),
+		}
+	}
+
+	// 返回成功响应
+	return &pb.ListPubPostReply{
+		Code: 0,
+		Msg:  "List published posts success",
+		Data: listPubPosts,
+	}, nil
+}
+
+func (s *PostService) DetailPost(ctx context.Context, req *pb.DetailPostRequest) (*pb.DetailPostReply, error) {
+	userId, err := s.getUserId(ctx)
+	if err != nil {
+		return &pb.DetailPostReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	post, err := s.biz.GetPost(ctx, req.PostId, userId)
+	if err != nil {
+		return &pb.DetailPostReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	return &pb.DetailPostReply{
+		Code: 0,
+		Msg:  "detail post success",
+		Data: &pb.DetailPost{
+			Id:        post.ID,
+			Title:     post.Title,
+			Content:   post.Content,
+			UserId:    post.UserID,
+			PlateId:   post.PlateID,
+			CreatedAt: timestamppb.New(post.CreatedAt),
+			UpdatedAt: timestamppb.New(post.UpdatedAt),
+		},
+	}, nil
+}
+
+func (s *PostService) DetailPubPost(ctx context.Context, req *pb.DetailPubPostRequest) (*pb.DetailPubPostReply, error) {
+	post, err := s.biz.GetPubPost(ctx, req.PostId)
+	if err != nil {
+		return &pb.DetailPubPostReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	return &pb.DetailPubPostReply{
+		Code: 0,
+		Msg:  "detail post success",
+		Data: &pb.DetailPost{
+			Id:        post.ID,
+			Title:     post.Title,
+			Content:   post.Content,
+			UserId:    post.UserID,
+			PlateId:   post.PlateID,
+			CreatedAt: timestamppb.New(post.CreatedAt),
+			UpdatedAt: timestamppb.New(post.UpdatedAt),
+		},
+	}, nil
+}
+
+// 通过grpc调用forum-user模块方法，获取userId
+func (s *PostService) getUserId(ctx context.Context) (int64, error) {
+	// 从 Kratos 上下文中获取传输信息
+	tr, ok := transport.FromServerContext(ctx)
+	if !ok {
+		return -1, errors.New("failed to get transport from context")
+	}
+
+	// 获取 Authorization 头
+	token := tr.RequestHeader().Get("Authorization")
+	if token == "" {
+		return -1, errors.New("authorization token not provided")
+	}
+
+	// 移除 "Bearer " 前缀
+	tokenStr := strings.TrimPrefix(token, "Bearer ")
+	if tokenStr == "" {
+		return -1, errors.New("authorization token is empty after trim")
+	}
+
+	// 为 userClient.GetUserInfo 设置超时时间
+	timeoutCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel() // 确保在函数退出时取消上下文，释放资源
+
+	// 调用 userClient 获取用户信息
+	info, err := s.userClient.GetUserInfo(timeoutCtx, &userpb.GetUserInfoRequest{Token: tokenStr})
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			// 如果超时，返回具体的超时错误信息
+			return -1, errors.New("getUserInfo request timed out")
+		}
+		return -1, err
+	}
+
+	return info.UserId, nil
+}
+
+func (s *PostService) ListPlate(ctx context.Context, req *pb.ListPlateRequest) (*pb.ListPlateReply, error) {
+	plates, err := s.biz.ListPlates(ctx, biz.Pagination{
+		Page: int(req.Page),
+		Size: &req.Size,
+	})
+	if err != nil {
+		return &pb.ListPlateReply{
+			Code: 1,
+			Msg:  "Failed to list plates: " + err.Error(),
+		}, err
+	}
+
+	listPlates := make([]*pb.ListPlate, len(plates))
+	for i, plate := range plates {
+		listPlates[i] = &pb.ListPlate{
+			Id:   plate.ID,
+			Name: plate.Name,
+		}
+	}
+
+	return &pb.ListPlateReply{
+		Code: 0,
+		Msg:  "List plates successfully",
+		Data: listPlates,
+	}, nil
+}
+
+func (s *PostService) CreatePlate(ctx context.Context, req *pb.CreatePlateRequest) (*pb.CreatePlateReply, error) {
+	plate := biz.Plate{
+		Name: req.Name,
+	}
+
+	if err := s.biz.CreatePlate(ctx, plate); err != nil {
+		return &pb.CreatePlateReply{
+			Code: 1,
+			Msg:  "Failed to create plate: " + err.Error(),
+		}, err
+	}
+
+	return &pb.CreatePlateReply{
+		Code: 0,
+		Msg:  "Create plate successfully",
+	}, nil
+}
+
+func (s *PostService) DeletePlate(ctx context.Context, req *pb.DeletePlateRequest) (*pb.DeletePlateReply, error) {
+	if err := s.biz.DeletePlate(ctx, req.PlateId); err != nil {
+		return &pb.DeletePlateReply{
+			Code: 1,
+			Msg:  "Failed to delete plate: " + err.Error(),
+		}, err
+	}
+
+	return &pb.DeletePlateReply{
+		Code: 0,
+		Msg:  "Delete plate successfully",
+	}, nil
+}
+
+func (s *PostService) UpdatePlate(ctx context.Context, req *pb.UpdatePlateRequest) (*pb.UpdatePlateReply, error) {
+	plate := biz.Plate{
+		ID:   req.PlateId,
+		Name: req.Name,
+	}
+
+	err := s.biz.UpdatePlate(ctx, plate)
+	if err != nil {
+		return &pb.UpdatePlateReply{
+			Code: 1,
+			Msg:  err.Error(),
+		}, err
+	}
+
+	return &pb.UpdatePlateReply{
+		Code: 0,
+		Msg:  "update plate success",
+	}, nil
+}

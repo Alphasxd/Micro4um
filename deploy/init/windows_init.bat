@@ -1,6 +1,6 @@
 @echo off
 REM 创建数据库
-mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS linkme DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS forum DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 REM 检查用户是否存在
 for /f "tokens=*" %%i in ('mysql -uroot -proot -sse "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = 'canal');"') do set USER_EXISTS=%%i
@@ -17,7 +17,7 @@ REM 获取当前目录
 set currentDir=%~dp0
 
 REM 导入当前目录下的SQL文件
-mysql -uroot -proot linkme < "%currentDir%linkme.sql"
+mysql -uroot -proot forum < "%currentDir%forum.sql"
 
 REM 提示完成
 echo Database import complete.

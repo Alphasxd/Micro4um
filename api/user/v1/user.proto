@@ -4,7 +4,7 @@ package api.user.v1;
 
 import "google/api/annotations.proto";
 
-option go_package = "linkme-user/api/user/v1;v1";
+option go_package = "forum-user/api/user/v1;v1";
 
 service User {
   rpc SignUp (SignUpRequest) returns (SignUpReply) {

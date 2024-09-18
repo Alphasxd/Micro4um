@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: es-pv
-  namespace: linkme
+  namespace: forum
 spec:
   capacity:
     storage: 10Gi
@@ -15,7 +15,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: es-pvc
-  namespace: linkme
+  namespace: forum
 spec:
   accessModes:
     - ReadWriteOnce
@@ -26,8 +26,8 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: linkme-es
-  namespace: linkme
+  name: forum-es
+  namespace: forum
 spec:
   replicas: 1
   selector:
@@ -71,7 +71,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: es-service
-  namespace: linkme
+  namespace: forum
 spec:
   type: NodePort
   ports:
@@ -88,7 +88,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: es-config
-  namespace: linkme
+  namespace: forum
 data:
   elasticsearch.yml: |
     cluster.name: "docker-cluster"

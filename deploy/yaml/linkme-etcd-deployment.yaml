@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: linkme-record-etcd
+  name: forum-record-etcd
   labels:
-    app: linkme-record-etcd
+    app: forum-record-etcd
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: linkme-record-etcd
+      app: forum-record-etcd
   template:
     metadata:
-      name: linkme-record-etcd
+      name: forum-record-etcd
       labels:
-        app: linkme-record-etcd
+        app: forum-record-etcd
     spec:
       containers:
-        - name: linkme-record-etcd
+        - name: forum-record-etcd
           image: bitnami/etcd:latest
           securityContext:
             runAsGroup: 0
@@ -33,5 +33,5 @@ spec:
       volumes:
         - name: etcd-data
           persistentVolumeClaim:
-            claimName: linkme-etcd-pvc
+            claimName: forum-etcd-pvc
       restartPolicy: Always

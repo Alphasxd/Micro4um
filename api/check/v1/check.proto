@@ -5,7 +5,7 @@ package api.check.v1;
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/GoSimplicity/LinkMe-microservices/api/check/v1;check";
+option go_package = "github.com/Alphasxd/Micro4um/api/check/v1;check";
 
 service Check {
 	rpc CreateCheck(CreateCheckRequest) returns (CreateCheckReply);

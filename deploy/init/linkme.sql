@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.0.39, for Linux (x86_64)
 --
--- Host: localhost    Database: linkme
+-- Host: localhost    Database: forum
 -- ------------------------------------------------------
 -- Server version       8.0.39
 
@@ -371,7 +371,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (10308038636343296,1718025027925,1718025027925,0,'Bamboo','$2a$10$LKLuaqEF38fA..XHCfRI.OtCxo58vYub/Fq.40X4CaaV.IqemrUd2','2024-07-03 00:00:00','admin','123456','this is LinkMe',0);
+INSERT INTO `users` VALUES (10308038636343296,1718025027925,1718025027925,0,'Bamboo','$2a$10$LKLuaqEF38fA..XHCfRI.OtCxo58vYub/Fq.40X4CaaV.IqemrUd2','2024-07-03 00:00:00','admin','123456','this is Forum',0);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 

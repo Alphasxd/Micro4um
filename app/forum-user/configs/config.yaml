@@ -1,0 +1,19 @@
+trace:
+  endpoint: http://100.64.1.1:30807/api/traces
+server:
+  http:
+    addr: 0.0.0.0:8010
+    timeout: 1s
+  grpc:
+    addr: 0.0.0.0:9010
+    timeout: 1s
+data:
+  database:
+    source: root:root@tcp(100.64.1.1:30882)/forum_microservices?parseTime=True&loc=Local
+  redis:
+    addr: 100.64.1.1:30884
+service:
+  etcd:
+    addr:
+    - 127.0.0.1:2379
+    timeout: 5s

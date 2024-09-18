@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: linkme-record-grafana
+  name: forum-record-grafana
 spec:
   selector:
-    app: linkme-record-grafana
+    app: forum-record-grafana
   ports:
     - protocol: TCP
       port: 3000

@@ -1,8 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: linkme-kibana
-  namespace: linkme
+  name: forum-kibana
+  namespace: forum
 spec:
   replicas: 1
   selector:
@@ -32,7 +32,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kibana-service
-  namespace: linkme
+  namespace: forum
 spec:
   type: NodePort
   ports:
@@ -46,10 +46,10 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: kibana-config
-  namespace: linkme
+  namespace: forum
 data:
   kibana.yml: |
-    server.name: linkme-kibana
+    server.name: forum-kibana
     server.host: "0.0.0.0"   # 监听所有网络接口
     elasticsearch.hosts: [ "http://192.168.1.11:30885" ]
     xpack.monitoring.ui.container.elasticsearch.enabled: true

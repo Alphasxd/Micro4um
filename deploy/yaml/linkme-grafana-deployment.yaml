@@ -2,17 +2,17 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: linkme-record-grafana
-  name: linkme-record-grafana
+    app: forum-record-grafana
+  name: forum-record-grafana
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: linkme-record-grafana
+      app: forum-record-grafana
   template:
     metadata:
       labels:
-        app: linkme-record-grafana
+        app: forum-record-grafana
     spec:
       containers:
         - image: grafana/grafana:latest

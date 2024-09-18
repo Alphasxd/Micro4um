@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package api.interactive.v1;
 
-option go_package = "github.com/GoSimplicity/LinkMe-microservices/api/interactive/v1;v1";
+option go_package = "github.com/Alphasxd/Micro4um/api/interactive/v1;v1";
 
 import "google/api/annotations.proto";
 

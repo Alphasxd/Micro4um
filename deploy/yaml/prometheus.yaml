@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: linkme-prometheus
+  name: forum-prometheus
   labels:
-    app: linkme-prometheus
-  namespace: linkme
+    app: forum-prometheus
+  namespace: forum
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: linkme-prometheus
+      app: forum-prometheus
   template:
     metadata:
-      name: linkme-prometheus
+      name: forum-prometheus
       labels:
-        app: linkme-prometheus
+        app: forum-prometheus
     spec:
       containers:
-        - name: linkme-prometheus
+        - name: forum-prometheus
           image: bitnami/prometheus:latest
           imagePullPolicy: IfNotPresent
           securityContext:
@@ -33,7 +33,7 @@ spec:
       volumes:
         - name: prometheus-data
           persistentVolumeClaim:
-            claimName: linkme-prometheus-pvc
+            claimName: forum-prometheus-pvc
         - name: prometheus-yml
           hostPath:
             path: /data/prometheus/prometheus.yml
@@ -42,8 +42,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: linkme-prometheus-pv
-  namespace: linkme
+  name: forum-prometheus-pv
+  namespace: forum
 spec:
   storageClassName: record
   capacity:
@@ -56,8 +56,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: linkme-prometheus-pvc
-  namespace: linkme
+  name: forum-prometheus-pvc
+  namespace: forum
 spec:
   storageClassName: record
   accessModes:
@@ -69,11 +69,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: linkme-prometheus
-  namespace: linkme
+  name: forum-prometheus
+  namespace: forum
 spec:
   selector:
-    app: linkme-prometheus
+    app: forum-prometheus
   ports:
     - protocol: TCP
       port: 9090

@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: mongo-pv
-  namespace: linkme
+  namespace: forum
 spec:
   capacity:
     storage: 10Gi
@@ -15,7 +15,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mongo-pvc
-  namespace: linkme
+  namespace: forum
 spec:
   accessModes:
     - ReadWriteOnce
@@ -26,8 +26,8 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: linkme-mongo
-  namespace: linkme
+  name: forum-mongo
+  namespace: forum
 spec:
   replicas: 1
   selector:
@@ -59,7 +59,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mongo-service
-  namespace: linkme
+  namespace: forum
 spec:
   type: NodePort
   ports:

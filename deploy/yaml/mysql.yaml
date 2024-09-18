@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: mysql-pv
-  namespace: linkme
+  namespace: forum
 spec:
   capacity:
     storage: 10Gi
@@ -15,7 +15,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mysql-pvc
-  namespace: linkme
+  namespace: forum
 spec:
   accessModes:
     - ReadWriteOnce
@@ -26,8 +26,8 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: linkme-mysql
-  namespace: linkme
+  name: forum-mysql
+  namespace: forum
 spec:
   replicas: 1
   selector:
@@ -51,7 +51,7 @@ spec:
             - name: MYSQL_ROOT_PASSWORD
               value: "root"
             - name: MYSQL_DATABASE
-              value: "linkme"
+              value: "forum"
           volumeMounts:
             - name: mysql-storage
               mountPath: /var/lib/mysql
@@ -69,7 +69,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mysql-service
-  namespace: linkme
+  namespace: forum
 spec:
   type: NodePort
   ports:

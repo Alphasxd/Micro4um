@@ -5,7 +5,7 @@ package api.post;
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/GoSimplicity/LinkMe-microservices/api/post/v1;post";
+option go_package = "github.com/Alphasxd/Micro4um/api/post/v1;post";
 
 service Post {
 	rpc CreatePost (CreatePostRequest) returns (CreatePostReply) {
