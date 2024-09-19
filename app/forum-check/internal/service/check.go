@@ -157,7 +157,7 @@ func (s *CheckService) getUserId(ctx context.Context) (int64, error) {
 	// 打印所有请求头
 	fmt.Println("Request Headers:")
 	for k, v := range tr.RequestHeader().Keys() {
-		fmt.Printf("%s: %s\n", k, tr.RequestHeader().Get(v))
+		fmt.Printf("%d: %s\n", k, tr.RequestHeader().Get(v))
 	}
 
 	// 获取 Authorization 头
